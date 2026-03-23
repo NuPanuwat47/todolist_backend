@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  firstName String?  @map("firstName")
+  lastName  String?  @map("lastName")
+  email     String?  @unique
+  phone     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  todos     Todo[]
+
+  @@map("admins")
+}
+
+model Todo {
+  id          Int      @id @default(autoincrement())
+  title       String   // หัวข้อสิ่งที่ต้องทำ
+  description String?  // รายละเอียด (ใส่ ? เพื่อบอกว่าเป็น Optional)
+  status      String?  // 'pending' | 'in_progress' | 'completed'
+  createdAt   DateTime @default(now())   // วันที่สร้าง
+  updatedAt   DateTime @updatedAt       // อัปเดตล่าสุดเมื่อไหร่
+  
+  // หากมีระบบ Login ให้เชื่อมกับ Admin
+  author      Admin?   @relation(fields: [authorId], references: [id])
+  authorId    Int?
+}
